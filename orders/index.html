@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProDash - Orders Management</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      /* Color palette */
+      --color-primary: #4285F4;
+      --color-primary-light: #8AB4F8;
+      --color-danger: #EA4335;
+      --color-success: #34A853;
+      --color-warning: #FBBC05;
+      --color-info: #17A2B8;
+      --color-white: #FFFFFF;
+      --color-gray-100: #F8F9FA;
+      --color-gray-200: #E9ECEF;
+      --color-gray-300: #DEE2E6;
+      --color-gray-400: #CED4DA;
+      --color-gray-500: #ADB5BD;
+      --color-gray-600: #6C757D;
+      --color-gray-700: #495057;
+      --color-gray-800: #343A40;
+      --color-gray-900: #212529;
+      
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-xl: 16px;
+      
+      --box-shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      --box-shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+      --box-shadow-lg: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.1);
+      
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-800);
+      line-height: 1.6;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      padding: 24px;
+      background-color: var(--color-gray-100);
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--color-gray-800);
+    }
+
+    /* Orders Summary Cards */
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      padding: 20px;
+      box-shadow: var(--box-shadow-sm);
+      transition: var(--transition);
+    }
+
+    .summary-card:hover {
+      box-shadow: var(--box-shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .summary-title {
+      font-size: 14px;
+      color: var(--color-gray-600);
+      font-weight: 500;
+    }
+
+    .summary-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .summary-icon.orders {
+      background-color: rgba(66, 133, 244, 0.1);
+      color: var(--color-primary);
+    }
+
+    .summary-icon.pending {
+      background-color: rgba(251, 188, 5, 0.1);
+      color: var(--color-warning);
+    }
+
+    .summary-icon.completed {
+      background-color: rgba(52, 168, 83, 0.1);
+      color: var(--color-success);
+    }
+
+    .summary-icon.revenue {
+      background-color: rgba(234, 67, 53, 0.1);
+      color: var(--color-danger);
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .summary-change {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .summary-change.positive {
+      color: var(--color-success);
+    }
+
+    .summary-change.negative {
+      color: var(--color-danger);
+    }
+
+    /* Filters Bar */
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      background-color: var(--color-white);
+      padding: 16px;
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-sm);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      color: var(--color-gray-600);
+      white-space: nowrap;
+    }
+
+    .filter-input {
+      padding: 8px 12px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-gray-300);
+      font-family: 'Poppins', sans-serif;
+      min-width: 180px;
+    }
+
+    .search-box {
+      position: relative;
+      flex-grow: 1;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-gray-300);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-gray-500);
+    }
+
+    /* Orders Table */
+    .orders-table-container {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-sm);
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .table-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: var(--border-radius-md);
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    .btn-primary:hover {
+      background-color: #3367d6;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--color-gray-300);
+      color: var(--color-gray-700);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--color-gray-100);
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .orders-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background-color: var(--color-gray-100);
+      font-weight: 500;
+      color: var(--color-gray-700);
+      white-space: nowrap;
+    }
+
+    .orders-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .orders-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .orders-table tr:hover td {
+      background-color: var(--color-gray-100);
+    }
+
+    .orders-table tr:nth-child(even) {
+      background-color: var(--color-gray-100);
+    }
+
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: var(--border-radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .status-badge.pending {
+      background-color: rgba(251, 188, 5, 0.1);
+      color: var(--color-warning);
+    }
+
+    .status-badge.shipped {
+      background-color: rgba(66, 133, 244, 0.1);
+      color: var(--color-primary);
+    }
+
+    .status-badge.delivered {
+      background-color: rgba(52, 168, 83, 0.1);
+      color: var(--color-success);
+    }
+
+    .status-badge.cancelled {
+      background-color: rgba(234, 67, 53, 0.1);
+      color: var(--color-danger);
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--color-gray-500);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      margin-right: 8px;
+      transition: var(--transition);
+    }
+
+    .action-btn:hover {
+      color: var(--color-primary);
+      background-color: var(--color-gray-200);
+    }
+
+    .action-btn.danger:hover {
+      color: var(--color-danger);
+    }
+
+    .customer-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .customer-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-top: 1px solid var(--color-gray-200);
+    }
+
+    .pagination-info {
+      font-size: 14px;
+      color: var(--color-gray-600);
+    }
+
+    .pagination-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .page-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 1px solid var(--color-gray-300);
+      background-color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .page-btn.active {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Order Details Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-lg);
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px);
+      transition: var(--transition);
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--color-gray-500);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--color-gray-700);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .customer-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .info-item {
+      margin-bottom: 8px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: var(--color-gray-500);
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-weight: 500;
+    }
+
+    .products-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .products-table th {
+      text-align: left;
+      padding: 12px;
+      background-color: var(--color-gray-100);
+      font-weight: 500;
+      color: var(--color-gray-700);
+    }
+
+    .products-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .product-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .product-image {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--border-radius-sm);
+      object-fit: cover;
+    }
+
+    .tracking-progress {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin: 24px 0;
+    }
+
+    .tracking-progress::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background-color: var(--color-gray-200);
+      z-index: 1;
+    }
+
+    .tracking-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .step-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: var(--color-gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      color: var(--color-white);
+      font-size: 10px;
+    }
+
+    .step-icon.active {
+      background-color: var(--color-primary);
+    }
+
+    .step-icon.completed {
+      background-color: var(--color-success);
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: var(--color-gray-600);
+      text-align: center;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid var(--color-gray-200);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .filters-bar {
+        flex-direction: column;
+      }
+      
+      .filter-group {
+        width: 100%;
+      }
+      
+      .filter-input {
+        flex-grow: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .summary-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .orders-table th, 
+      .orders-table td {
+        padding: 8px 12px;
+      }
+      
+      .pagination {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .main-content {
+        padding: 16px;
+      }
+      
+      .action-btn {
+        margin-right: 4px;
+      }
+      
+      .modal {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="main-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">Orders Management</h1>
+      <div class="date-picker">
+        <i class="fas fa-calendar-alt"></i>
+        <input type="date" id="datePicker">
+      </div>
+    </div>
+    
+    <!-- Orders Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-header">
+          <span class="summary-title">Total Orders</span>
+          <div class="summary-icon orders">
+            <i class="fas fa-box"></i>
+          </div>
+        </div>
+        <div class="summary-value">1,842</div>
+        <div class="summary-change positive">
+          <i class="fas fa-arrow-up"></i> 8.3% from last month
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-header">
+          <span class="summary-title">Pending Orders</span>
+          <div class="summary-icon pending">
+            <i class="fas fa-clock"></i>
+          </div>
+        </div>
+        <div class="summary-value">324</div>
+        <div class="summary-change negative">
+          <i class="fas fa-arrow-down"></i> 2.1% from last month
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-header">
+          <span class="summary-title">Completed Orders</span>
+          <div class="summary-icon completed">
+            <i class="fas fa-check"></i>
+          </div>
+        </div>
+        <div class="summary-value">1,428</div>
+        <div class="summary-change positive">
+          <i class="fas fa-arrow-up"></i> 12.7% from last month
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-header">
+          <span class="summary-title">Total Revenue</span>
+          <div class="summary-icon revenue">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+        </div>
+        <div class="summary-value">$48,257</div>
+        <div class="summary-change positive">
+          <i class="fas fa-arrow-up"></i> 5.4% from last month
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filters Bar -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <span class="filter-label">Status:</span>
+        <select class="filter-input">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <span class="filter-label">From:</span>
+        <input type="date" class="filter-input">
+      </div>
+      
+      <div class="filter-group">
+        <span class="filter-label">To:</span>
+        <input type="date" class="filter-input">
+      </div>
+      
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" placeholder="Search orders...">
+      </div>
+    </div>
+    
+    <!-- Orders Table -->
+    <div class="orders-table-container">
+      <div class="table-header">
+        <h2 class="table-title">Recent Orders</h2>
+        <div class="table-actions">
+          <button class="btn btn-outline">
+            <i class="fas fa-download"></i> Export
+          </button>
+          <button class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Order
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox"></th>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Products</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>#ORD-1001</td>
+              <td>
+                <div class="customer-cell">
+                  <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Customer" class="customer-avatar">
+                  <span>John Smith</span>
+                </div>
+              </td>
+              <td>3 items</td>
+              <td>2023-11-15</td>
+              <td>$245.99</td>
+              <td><span class="status-badge shipped">Shipped</span></td>
+              <td>
+                <button class="action-btn" onclick="viewOrder('ORD-1001')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>#ORD-1002</td>
+              <td>
+                <div class="customer-cell">
+                  <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Customer" class="customer-avatar">
+                  <span>Sarah Johnson</span>
+                </div>
+              </td>
+              <td>1 item</td>
+              <td>2023-11-14</td>
+              <td>$89.50</td>
+              <td><span class="status-badge pending">Pending</span></td>
+              <td>
+                <button class="action-btn" onclick="viewOrder('ORD-1002')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>#ORD-1003</td>
+              <td>
+                <div class="customer-cell">
+                  <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Customer" class="customer-avatar">
+                  <span>Michael Brown</span>
+                </div>
+              </td>
+              <td>2 items</td>
+              <td>2023-11-13</td>
+              <td>$156.75</td>
+              <td><span class="status-badge delivered">Delivered</span></td>
+              <td>
+                <button class="action-btn" onclick="viewOrder('ORD-1003')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>#ORD-1004</td>
+              <td>
+                <div class="customer-cell">
+                  <img src="https://randomuser.me/api/portraits/women/28.jpg" alt="Customer" class="customer-avatar">
+                  <span>Emily Davis</span>
+                </div>
+              </td>
+              <td>5 items</td>
+              <td>2023-11-12</td>
+              <td>$432.20</td>
+              <td><span class="status-badge cancelled">Cancelled</span></td>
+              <td>
+                <button class="action-btn" onclick="viewOrder('ORD-1004')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>#ORD-1005</td>
+              <td>
+                <div class="customer-cell">
+                  <img src="https://randomuser.me/api/portraits/men/52.jpg" alt="Customer" class="customer-avatar">
+                  <span>Robert Wilson</span>
+                </div>
+              </td>
+              <td>1 item</td>
+              <td>2023-11-11</td>
+              <td>$75.30</td>
+              <td><span class="status-badge shipped">Shipped</span></td>
+              <td>
+                <button class="action-btn" onclick="viewOrder('ORD-1005')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="pagination">
+        <div class="pagination-info">
+          Showing 1 to 5 of 24 orders
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" disabled>
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Order Details Modal -->
+    <div class="modal-overlay" id="orderModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">Order Details</h2>
+          <button class="modal-close" onclick="closeModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-section">
+            <h3 class="section-title">
+              <i class="fas fa-user"></i> Customer Information
+            </h3>
+            <div class="customer-info">
+              <div>
+                <div class="info-item">
+                  <div class="info-label">Customer Name</div>
+                  <div class="info-value" id="customerName">John Smith</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Email</div>
+                  <div class="info-value" id="customerEmail">john.smith@example.com</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Phone</div>
+                  <div class="info-value" id="customerPhone">+1 (555) 123-4567</div>
+                </div>
+              </div>
+              <div>
+                <div class="info-item">
+                  <div class="info-label">Order ID</div>
+                  <div class="info-value" id="orderId">#ORD-1001</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Order Date</div>
+                  <div class="info-value" id="orderDate">November 15, 2023</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Status</div>
+                  <div class="info-value"><span class="status-badge shipped">Shipped</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-section">
+            <h3 class="section-title">
+              <i class="fas fa-box-open"></i> Products
+            </h3>
+            <div class="table-responsive">
+              <table class="products-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="product-cell">
+                        <img src="h1.jfif" alt="Product" class="product-image">
+                        <span>Wireless Headphones Pro</span>
+                      </div>
+                    </td>
+                    <td>$199.99</td>
+                    <td>1</td>
+                    <td>$199.99</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="product-cell">
+                        <img src="h2.webp" alt="Product" class="product-image">
+                        <span>Phone Case</span>
+                      </div>
+                    </td>
+                    <td>$29.99</td>
+                    <td>2</td>
+                    <td>$59.98</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="product-cell">
+                        <img src="h3.webp" alt="Product" class="product-image">
+                        <span>Screen Protector</span>
+                      </div>
+                    </td>
+                    <td>$9.99</td>
+                    <td>1</td>
+                    <td>$9.99</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="modal-section">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+              <div>
+                <h3 class="section-title">
+                  <i class="fas fa-truck"></i> Shipping Information
+                </h3>
+                <div class="info-item">
+                  <div class="info-label">Shipping Method</div>
+                  <div class="info-value">Express Delivery (2-3 days)</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Tracking Number</div>
+                  <div class="info-value">#TRK-123456789</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Shipping Address</div>
+                  <div class="info-value">
+                    123 Main St, Apt 4B<br>
+                    New York, NY 10001<br>
+                    United States
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 class="section-title">
+                  <i class="fas fa-credit-card"></i> Payment Information
+                </h3>
+                <div class="info-item">
+                  <div class="info-label">Payment Method</div>
+                  <div class="info-value">Credit Card (Visa ****4242)</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Subtotal</div>
+                  <div class="info-value">$269.96</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Shipping</div>
+                  <div class="info-value">$12.99</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Tax</div>
+                  <div class="info-value">$24.35</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Total</div>
+                  <div class="info-value" style="font-weight: 600;">$307.30</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-section">
+            <h3 class="section-title">
+              <i class="fas fa-map-marker-alt"></i> Delivery Tracking
+            </h3>
+            <div class="tracking-progress">
+              <div class="tracking-step">
+                <div class="step-icon completed">
+                  <i class="fas fa-check"></i>
+                </div>
+                <div class="step-label">Order Placed</div>
+              </div>
+              <div class="tracking-step">
+                <div class="step-icon completed">
+                  <i class="fas fa-check"></i>
+                </div>
+                <div class="step-label">Processed</div>
+              </div>
+              <div class="tracking-step">
+                <div class="step-icon active">
+                  <i class="fas fa-truck"></i>
+                </div>
+                <div class="step-label">Shipped</div>
+              </div>
+              <div class="tracking-step">
+                <div class="step-icon">
+                  <i class="fas fa-home"></i>
+                </div>
+                <div class="step-label">Delivered</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-section">
+            <h3 class="section-title">
+              <i class="fas fa-sticky-note"></i> Order Notes
+            </h3>
+            <div class="info-item">
+              <div class="info-value">
+                Customer requested gift wrapping with a birthday message.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal()">
+            Close
+          </button>
+          <button class="btn btn-primary">
+            <i class="fas fa-print"></i> Print Invoice
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Set today's date as default
+    document.getElementById('datePicker').valueAsDate = new Date();
+    
+    // Order Modal Functions
+    function viewOrder(orderId) {
+      // In a real app, we would fetch order details here
+      console.log('Viewing order:', orderId);
+      
+      // Update modal with order details (mock data)
+      document.getElementById('orderId').textContent = `#${orderId}`;
+      
+      // Show modal
+      document.getElementById('orderModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+      document.getElementById('orderModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('orderModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+    
+    // Filter Orders Function
+    function filterOrders() {
+      const statusFilter = document.querySelector('.filter-input').value;
+      const searchQuery = document.querySelector('.search-box input').value.toLowerCase();
+      
+      console.log('Filtering by:', {
+        status: statusFilter,
+        search: searchQuery
+      });
+      
+      // In a real app, we would filter the orders list here
+    }
+    
+    // Add event listeners to filters
+    document.querySelectorAll('.filter-input').forEach(input => {
+      input.addEventListener('change', filterOrders);
+    });
+    
+    document.querySelector('.search-box input').addEventListener('input', filterOrders);
+    
+    // Sort Table Function
+    function sortTable(columnIndex) {
+      console.log('Sorting by column:', columnIndex);
+      // In a real app, we would sort the table data here
+    }
+    
+    // Add click handlers to table headers
+    document.querySelectorAll('.orders-table th').forEach((header, index) => {
+      if (index > 0) { // Skip checkbox column
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', () => sortTable(index));
+      }
+    });
+    
+    // Export to CSV Function
+    function exportToCSV() {
+      console.log('Exporting orders to CSV');
+      // In a real app, we would generate and download CSV here
+    }
+    
+    document.querySelector('.btn-outline').addEventListener('click', exportToCSV);
+  </script>
+</body>
+</html>

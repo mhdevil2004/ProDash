@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProDash - Analytics</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      /* Color palette */
+      --color-primary: #4285F4;
+      --color-primary-light: #8AB4F8;
+      --color-danger: #EA4335;
+      --color-success: #34A853;
+      --color-warning: #FBBC05;
+      --color-info: #17A2B8;
+      --color-white: #FFFFFF;
+      --color-gray-100: #F8F9FA;
+      --color-gray-200: #E9ECEF;
+      --color-gray-300: #DEE2E6;
+      --color-gray-400: #CED4DA;
+      --color-gray-500: #ADB5BD;
+      --color-gray-600: #6C757D;
+      --color-gray-700: #495057;
+      --color-gray-800: #343A40;
+      --color-gray-900: #212529;
+      
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-xl: 16px;
+      
+      --box-shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      --box-shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+      --box-shadow-lg: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.1);
+      
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-800);
+      line-height: 1.6;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      padding: 24px;
+      background-color: var(--color-gray-100);
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--color-gray-800);
+    }
+
+    /* Filters Bar */
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      background-color: var(--color-white);
+      padding: 16px;
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-sm);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      color: var(--color-gray-600);
+      white-space: nowrap;
+    }
+
+    .filter-input {
+      padding: 8px 12px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-gray-300);
+      font-family: 'Poppins', sans-serif;
+      min-width: 160px;
+    }
+
+    /* Analytics Cards */
+    .analytics-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .analytics-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      padding: 20px;
+      box-shadow: var(--box-shadow-sm);
+      transition: var(--transition);
+    }
+
+    .analytics-card:hover {
+      box-shadow: var(--box-shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      color: var(--color-gray-600);
+      font-weight: 500;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .card-icon.users {
+      background-color: rgba(66, 133, 244, 0.1);
+      color: var(--color-primary);
+    }
+
+    .card-icon.revenue {
+      background-color: rgba(52, 168, 83, 0.1);
+      color: var(--color-success);
+    }
+
+    .card-icon.conversion {
+      background-color: rgba(251, 188, 5, 0.1);
+      color: var(--color-warning);
+    }
+
+    .card-icon.sessions {
+      background-color: rgba(234, 67, 53, 0.1);
+      color: var(--color-danger);
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-change {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-change.positive {
+      color: var(--color-success);
+    }
+
+    .card-change.negative {
+      color: var(--color-danger);
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      padding: 20px;
+      box-shadow: var(--box-shadow-sm);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chart-select {
+      padding: 6px 12px;
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--color-gray-300);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+    }
+
+    .chart-container {
+      height: 300px;
+      position: relative;
+    }
+
+    /* Activity Log */
+    .activity-log {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-sm);
+    }
+
+    .log-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .log-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .log-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background-color: var(--color-gray-100);
+      font-weight: 500;
+      color: var(--color-gray-700);
+    }
+
+    .log-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .log-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .log-table tr:hover td {
+      background-color: var(--color-gray-100);
+    }
+
+    .log-badge {
+      padding: 4px 8px;
+      border-radius: var(--border-radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .log-badge.success {
+      background-color: rgba(52, 168, 83, 0.1);
+      color: var(--color-success);
+    }
+
+    .log-badge.warning {
+      background-color: rgba(251, 188, 5, 0.1);
+      color: var(--color-warning);
+    }
+
+    .log-badge.info {
+      background-color: rgba(66, 133, 244, 0.1);
+      color: var(--color-primary);
+    }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .filters-bar {
+        flex-direction: column;
+      }
+      
+      .filter-group {
+        width: 100%;
+      }
+      
+      .filter-input {
+        flex-grow: 1;
+      }
+      
+      .analytics-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .main-content {
+        padding: 16px;
+      }
+      
+      .analytics-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      
+      .chart-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .chart-select {
+        flex-grow: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="main-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">Analytics Dashboard</h1>
+      <div class="filter-group">
+        <span class="filter-label">Last updated:</span>
+        <span id="lastUpdated">Just now</span>
+      </div>
+    </div>
+    
+    <!-- Filters Bar -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <span class="filter-label">Date Range:</span>
+        <select class="filter-input" id="dateRange">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <span class="filter-label">From:</span>
+        <input type="date" class="filter-input" id="dateFrom">
+      </div>
+      
+      <div class="filter-group">
+        <span class="filter-label">To:</span>
+        <input type="date" class="filter-input" id="dateTo">
+      </div>
+      
+      <div class="filter-group">
+        <span class="filter-label">Metric:</span>
+        <select class="filter-input" id="metricType">
+          <option value="all">All Metrics</option>
+          <option value="users">Users</option>
+          <option value="revenue">Revenue</option>
+          <option value="conversion">Conversion</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Analytics Cards -->
+    <div class="analytics-cards">
+      <div class="analytics-card">
+        <div class="card-header">
+          <span class="card-title">Total Users</span>
+          <div class="card-icon users">
+            <i class="fas fa-users"></i>
+          </div>
+        </div>
+        <div class="card-value">24,589</div>
+        <div class="card-change positive">
+          <i class="fas fa-arrow-up"></i> 12.5% from last month
+        </div>
+      </div>
+      
+      <div class="analytics-card">
+        <div class="card-header">
+          <span class="card-title">Monthly Revenue</span>
+          <div class="card-icon revenue">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+        </div>
+        <div class="card-value">$48,257</div>
+        <div class="card-change positive">
+          <i class="fas fa-arrow-up"></i> 8.3% from last month
+        </div>
+      </div>
+      
+      <div class="analytics-card">
+        <div class="card-header">
+          <span class="card-title">Conversion Rate</span>
+          <div class="card-icon conversion">
+            <i class="fas fa-chart-line"></i>
+          </div>
+        </div>
+        <div class="card-value">3.42%</div>
+        <div class="card-change negative">
+          <i class="fas fa-arrow-down"></i> 1.2% from last month
+        </div>
+      </div>
+      
+      <div class="analytics-card">
+        <div class="card-header">
+          <span class="card-title">Active Sessions</span>
+          <div class="card-icon sessions">
+            <i class="fas fa-signal"></i>
+          </div>
+        </div>
+        <div class="card-value">1,842</div>
+        <div class="card-change positive">
+          <i class="fas fa-arrow-up"></i> 5.7% from last month
+        </div>
+      </div>
+    </div>
+    
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2 class="chart-title">User Growth & Sales Performance</h2>
+          <div class="chart-controls">
+            <select class="chart-select" id="chartType">
+              <option value="combined">Combined View</option>
+              <option value="users">Users Only</option>
+              <option value="sales">Sales Only</option>
+            </select>
+            <select class="chart-select" id="chartGranularity">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2 class="chart-title">Traffic Sources</h2>
+          <div class="chart-controls">
+            <select class="chart-select" id="trafficType">
+              <option value="all">All Traffic</option>
+              <option value="desktop">Desktop</option>
+              <option value="mobile">Mobile</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="trafficChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Activity Log -->
+    <div class="activity-log">
+      <div class="log-header">
+        <h2 class="log-title">Recent Activity</h2>
+      </div>
+      <div class="table-responsive">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action</th>
+              <th>User</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2023-11-15 10:30</td>
+              <td>User registration</td>
+              <td>
+                <div class="user-cell">
+                  <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="user-avatar">
+                  <span>john.smith</span>
+                </div>
+              </td>
+              <td><span class="log-badge success">Success</span></td>
+            </tr>
+            <tr>
+              <td>2023-11-15 09:45</td>
+              <td>Order #1001 placed</td>
+              <td>
+                <div class="user-cell">
+                  <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="user-avatar">
+                  <span>sarah.j</span>
+                </div>
+              </td>
+              <td><span class="log-badge success">Success</span></td>
+            </tr>
+            <tr>
+              <td>2023-11-15 08:20</td>
+              <td>Payment processed</td>
+              <td>
+                <div class="user-cell">
+                  <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="User" class="user-avatar">
+                  <span>michael.b</span>
+                </div>
+              </td>
+              <td><span class="log-badge warning">Pending</span></td>
+            </tr>
+            <tr>
+              <td>2023-11-14 16:10</td>
+              <td>Password reset</td>
+              <td>
+                <div class="user-cell">
+                  <img src="https://randomuser.me/api/portraits/women/28.jpg" alt="User" class="user-avatar">
+                  <span>emily.d</span>
+                </div>
+              </td>
+              <td><span class="log-badge info">Completed</span></td>
+            </tr>
+            <tr>
+              <td>2023-11-14 14:35</td>
+              <td>Product review</td>
+              <td>
+                <div class="user-cell">
+                  <img src="https://randomuser.me/api/portraits/men/52.jpg" alt="User" class="user-avatar">
+                  <span>robert.w</span>
+                </div>
+              </td>
+              <td><span class="log-badge success">Success</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Initialize Analytics Charts
+    function initAnalyticsCharts() {
+      // Main Chart (User Growth & Sales Performance)
+      const mainCtx = document.getElementById('mainChart').getContext('2d');
+      const mainChart = new Chart(mainCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+          datasets: [{
+            label: 'Users',
+            data: [1200, 1900, 1700, 2100, 2300, 2500, 2800],
+            backgroundColor: 'rgba(66, 133, 244, 0.7)',
+            borderColor: 'rgba(66, 133, 244, 1)',
+            borderWidth: 1,
+            type: 'line',
+            order: 0
+          }, {
+            label: 'Sales',
+            data: [800, 1200, 1000, 1500, 1800, 2000, 2200],
+            backgroundColor: 'rgba(52, 168, 83, 0.7)',
+            borderColor: 'rgba(52, 168, 83, 1)',
+            borderWidth: 1,
+            order: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+
+      // Traffic Sources Chart
+      const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+      const trafficChart = new Chart(trafficCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Organic', 'Direct', 'Social', 'Referral', 'Paid'],
+          datasets: [{
+            data: [35, 25, 15, 15, 10],
+            backgroundColor: [
+              'rgba(66, 133, 244, 0.7)',
+              'rgba(52, 168, 83, 0.7)',
+              'rgba(251, 188, 5, 0.7)',
+              'rgba(234, 67, 53, 0.7)',
+              'rgba(155, 81, 224, 0.7)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${percentage}% (${value})`;
+                }
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+
+      // Store chart instances for later updates
+      window.analyticsCharts = {
+        main: mainChart,
+        traffic: trafficChart
+      };
+    }
+
+    // Filter Analytics Data
+    function filterByRange(range) {
+      console.log('Filtering by range:', range);
+      // In a real app, we would fetch new data and update charts
+      
+      // Simulate loading
+      document.getElementById('lastUpdated').textContent = 'Updating...';
+      
+      setTimeout(() => {
+        document.getElementById('lastUpdated').textContent = 'Just now';
+        
+        // Update charts with new data
+        if (window.analyticsCharts) {
+          // This would be replaced with actual data fetching
+          const newData = generateRandomData(range);
+          updateCharts(newData);
+        }
+      }, 1000);
+    }
+
+    // Generate random data for demo
+    function generateRandomData(range) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const count = range === '7' ? 7 : range === '30' ? 30 : 12;
+      
+      return {
+        labels: months.slice(0, count),
+        userData: Array(count).fill().map(() => Math.floor(Math.random() * 3000) + 1000),
+        salesData: Array(count).fill().map(() => Math.floor(Math.random() * 2000) + 500),
+        trafficData: [
+          Math.floor(Math.random() * 30) + 20,
+          Math.floor(Math.random() * 20) + 15,
+          Math.floor(Math.random() * 15) + 10,
+          Math.floor(Math.random() * 15) + 10,
+          Math.floor(Math.random() * 10) + 5
+        ]
+      };
+    }
+
+    // Update charts with new data
+    function updateCharts(data) {
+      const { main, traffic } = window.analyticsCharts;
+      
+      // Update main chart
+      main.data.labels = data.labels;
+      main.data.datasets[0].data = data.userData;
+      main.data.datasets[1].data = data.salesData;
+      main.update();
+      
+      // Update traffic chart
+      traffic.data.datasets[0].data = data.trafficData;
+      traffic.update();
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      initAnalyticsCharts();
+      
+      // Set default dates
+      const today = new Date();
+      const lastMonth = new Date();
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+      
+      document.getElementById('dateFrom').valueAsDate = lastMonth;
+      document.getElementById('dateTo').valueAsDate = today;
+      
+      // Add event listeners
+      document.getElementById('dateRange').addEventListener('change', function() {
+        filterByRange(this.value);
+      });
+      
+      document.getElementById('chartType').addEventListener('change', function() {
+        console.log('Chart type changed to:', this.value);
+        // In a real app, we would update the chart type
+      });
+      
+      document.getElementById('chartGranularity').addEventListener('change', function() {
+        console.log('Granularity changed to:', this.value);
+        // In a real app, we would update the chart data
+      });
+      
+      // Simulate real-time updates every 30 seconds
+      setInterval(() => {
+        document.getElementById('lastUpdated').textContent = 'Updating...';
+        
+        setTimeout(() => {
+          document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+          
+          if (window.analyticsCharts) {
+            const range = document.getElementById('dateRange').value;
+            const newData = generateRandomData(range);
+            updateCharts(newData);
+          }
+        }, 1000);
+      }, 30000);
+    });
+  </script>
+</body>
+</html>
